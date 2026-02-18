@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Défi :  Glace</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+  background:black;
+  color:white;
+  font-family:'Press Start 2P', monospace;
+  text-align:center;
+  margin:0;
+  padding:0;
+}
+
+h1{ margin-top:20px; font-size:16px; }
+
+#game-container{
+  margin-top:20px;
+  position:relative;
+}
+
+#grid{
+  display:grid;
+  grid-template-columns:repeat(6,50px);
+  grid-gap:5px;
+  justify-content:center;
+  margin-top:20px;
+}
+
+.cell{
+  width:50px;
+  height:50px;
+  background:#222;
+  border:2px solid #555;
+  cursor:pointer;
+  transition: all 0.2s;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:24px;
+}
+
+.cell:hover{
+  background:#555;
+}
+
+#letterA{
+  font-size:100px;
+  margin-top:20px;
+  display:none;
+  animation:blink 1s infinite;
+}
+
+@keyframes blink {0%{opacity:1;}50%{opacity:0;}100%{opacity:1;}}
+
+#attempts{
+  margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<h1>Défi Glace : Trouve le bon coffre !</h1>
+<div id="game-container">
+  <div id="attempts">Tentatives restantes : 10</div>
+  <div id="grid"></div>
+  <div id="letterA">A</div>
+</div>
+
+<script>
+const grid = document.getElementById('grid');
+const letterA = document.getElementById('letterA');
+
+let cells = [];
+let correctIndex;
+let attemptsLeft = 10;
+
+// Initialise le jeu
+function initGame(){
+  grid.innerHTML='';
+  cells=[];
+  attemptsLeft=10;
+  document.getElementById('attempts').textContent = `Tentatives restantes : ${attemptsLeft}`;
+  letterA.style.display='none';
+  correctIndex = Math.floor(Math.random()*30);
+
+  for(let i=0;i<30;i++){
+    const div = document.createElement('div');
+    div.className='cell';
+    grid.appendChild(div);
+    cells.push(div);
+
+    div.addEventListener('click', ()=>{
+      if(div.classList.contains('clicked')) return;
+
+      div.classList.add('clicked');
+
+      if(i === correctIndex){
+        div.textContent = '✓'; // symbole correct
+        div.style.color = 'limegreen';
+        letterA.style.display='block';
+      } else {
+        div.textContent = 'X'; // symbole incorrect
+        div.style.color='red';
+        attemptsLeft--;
+        document.getElementById('attempts').textContent = `Tentatives restantes : ${attemptsLeft}`;
+        if(attemptsLeft <= 0){
+          setTimeout(initGame,500);
+        }
+      }
+    });
+  }
+}
+
+// Démarre le jeu
+initGame();
+</script>
+
+</body>
+</html>

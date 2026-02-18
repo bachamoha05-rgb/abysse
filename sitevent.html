@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Défi : Vent</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+  background:black;
+  color:white;
+  font-family:'Press Start 2P', monospace;
+  margin:0;
+  padding:0;
+  text-align:center;
+  overflow: hidden;
+}
+
+h1{ margin-top:20px; font-size:16px;}
+#game-container{
+  margin-top:30px;
+  position:relative;
+}
+
+#grid{
+  display:grid;
+  grid-template-columns:repeat(2, 120px);
+  grid-gap:20px;
+  justify-content:center;
+  margin-top:20px;
+}
+
+.cell{
+  width:120px;
+  height:120px;
+  background:black;
+  border:3px solid white;
+  cursor:pointer;
+  transition: all 0.2s;
+}
+
+.cell.active{
+  background:white;
+}
+
+#letterM{
+  font-size:100px;
+  margin-top:30px;
+  display:none;
+  animation:blink 1s infinite;
+}
+
+#score{
+  font-size:16px;
+  margin-top:10px;
+}
+
+@keyframes blink {0%{opacity:1;}50%{opacity:0;}100%{opacity:1;}}
+
+.message{
+  position:absolute;
+  font-size:16px;
+  font-weight:bold;
+  pointer-events:none;
+  animation:fadeOut 1s forwards;
+}
+.message.success{ color:yellow; }
+.message.fail{ color:red; }
+@keyframes fadeOut{
+  0%{opacity:1;}
+  100%{opacity:0; top:0;}
+}
+</style>
+</head>
+<body>
+<h1>Reproduis les séquences !</h1>
+<div id="game-container">
+  <div id="score">Score : 0 / 10</div>
+  <div id="grid">
+    <div class="cell" data-id="0"></div>
+    <div class="cell" data-id="1"></div>
+    <div class="cell" data-id="2"></div>
+    <div class="cell" data-id="3"></div>
+  </div>
+  <div id="letterM">M</div>
+</div>
+
+<script>
+const cells = document.querySelectorAll('.cell');
+const letterM = document.getElementById('letterM');
+const scoreEl = document.getElementById('score');
+const failMessages = ["raté","trop guez","fait un effort","bro plz","encore raté"];
+
+let sequence = [];
+let playerSequence = [];
+let currentScore = 0;
+const maxRounds = 10;
+
+// Affiche message
+function showMessage(text,type){
+  const msg = document.createElement('div');
+  msg.className='message '+type;
+  msg.textContent=text;
+  msg.style.left = Math.random()*(window.innerWidth-100)+'px';
+  msg.style.top = Math.random()*(window.innerHeight-50)+'px';
+  document.body.appendChild(msg);
+  setTimeout(()=>{ document.body.removeChild(msg); },1000);
+}
+
+// Ajoute un nouvel élément à la séquence pour la prochaine manche
+function nextStep(){
+  const next = Math.floor(Math.random()*cells.length);
+  sequence.push(next);
+  playerSequence = [];
+  playSequence();
+}
+
+// Joue la séquence complète avec clignotement
+function playSequence(){
+  sequence.forEach((id,i)=>{
+    setTimeout(()=>{
+      const cell = cells[id];
+      cell.classList.add('active');
+      setTimeout(()=>{ cell.classList.remove('active'); },500);
+    }, i*700);
+  });
+}
+
+// Réinitialise tout le jeu
+function resetGame(){
+  sequence = [];
+  playerSequence = [];
+  currentScore = 0;
+  scoreEl.textContent=`Score : 0 / ${maxRounds}`;
+  showMessage("Game reset !","fail");
+  nextStep();
+}
+
+// Vérifie l'entrée du joueur
+function checkPlayer(id){
+  playerSequence.push(id);
+  const currentIndex = playerSequence.length-1;
+  if(playerSequence[currentIndex] !== sequence[currentIndex]){
+    // Mauvaise réponse → tout reset
+    const failMsg = failMessages[Math.floor(Math.random()*failMessages.length)];
+    showMessage(failMsg,"fail");
+    setTimeout(resetGame,800);
+    return;
+  }
+
+  // Si le joueur complète correctement la séquence
+  if(playerSequence.length === sequence.length){
+    currentScore++;
+    scoreEl.textContent=`Score : ${currentScore} / ${maxRounds}`;
+    showMessage("+1 point","success");
+
+    if(currentScore >= maxRounds){
+      letterM.style.display='block';
+      showMessage("Bravo ! Lettre M débloquée !","success");
+      return;
+    }
+
+    setTimeout(nextStep,800); // ajouter un nouvel élément pour la prochaine manche
+  }
+}
+
+// Event clic sur les cases
+cells.forEach(cell=>{
+  cell.addEventListener('click',()=>{
+    const id = parseInt(cell.dataset.id);
+    cell.classList.add('active');
+    setTimeout(()=>{ cell.classList.remove('active'); },200);
+    checkPlayer(id);
+  });
+});
+
+// Démarre le jeu
+nextStep();
+</script>
+</body>
+</html>
