@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISMAC - Accès</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body{
+  background:black;
+  color:white;
+  font-family:'Press Start 2P', monospace;
+  text-align:center;
+  margin:0;
+  padding:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+h1{
+  font-size:18px;
+  margin-bottom:40px;
+}
+
+input{
+  padding:12px;
+  font-size:14px;
+  text-align:center;
+  background:black;
+  color:white;
+  border:2px solid white;
+  outline:none;
+  width:220px;
+}
+
+input:focus{
+  border-color:lime;
+}
+
+button{
+  margin-top:20px;
+  padding:12px 25px;
+  font-family:'Press Start 2P', monospace;
+  font-size:12px;
+  background:black;
+  color:white;
+  border:2px solid white;
+  cursor:pointer;
+}
+
+button:hover{
+  background:white;
+  color:black;
+}
+
+#error{
+  margin-top:20px;
+  color:red;
+  font-size:12px;
+  height:20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>ACCÈS PARTICIPANT</h1>
+<p>Entrez votre code personnel</p>
+
+<input type="text" id="codeInput" placeholder="ENTRER CODE">
+<button onclick="checkCode()">VALIDER</button>
+
+<div id="error"></div>
+
+<script>
+function checkCode(){
+  const code = document.getElementById("codeInput").value.trim().toUpperCase();
+  const error = document.getElementById("error");
+
+  // Tableau des codes + redirections
+  const codes = {
+    "FEU123": "sitefeu.html",
+    "GLACE456": "siteglace.html",
+    "TERRE789": "siteterre.html",
+    "EVENT321": "siteevent.html",
+    "FOUDRE654": "sitefoudre.html"
+  };
+
+  if(codes[code]){
+    window.location.href = codes[code];
+  } else{
+    error.textContent = "CODE INVALIDE";
+  }
+}
+
+// Permet de valider avec la touche Entrée
+document.getElementById("codeInput").addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    checkCode();
+  }
+});
+</script>
+
+</body>
+</html>
