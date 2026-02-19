@@ -4,20 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Défi : Foudre</title>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-body {
+body{
   background:black;
   color:white;
   font-family:'Press Start 2P', monospace;
   margin:0;
   padding:0;
   text-align:center;
-  overflow: hidden;
+  overflow:hidden;
+}
+
+/* Effet scan TV */
+body::after{
+  content:"";
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255,255,255,0.05),
+    rgba(255,255,255,0.05) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events:none;
 }
 
 h1{ margin-top:20px; font-size:16px;}
+
 #game-container{
   margin-top:20px;
   position:relative;
@@ -29,7 +49,6 @@ h1{ margin-top:20px; font-size:16px;}
   flex-wrap:wrap;
   max-width:600px;
   margin:20px auto;
-  position:relative;
 }
 
 .camera{
@@ -40,39 +59,59 @@ h1{ margin-top:20px; font-size:16px;}
   position:relative;
   cursor:pointer;
   background:black;
-  transition: transform 0.1s;
+  overflow:hidden;
 }
 
-/* Animatroniques noir et blanc */
+/* PERSONNAGE BINAIRE */
 .animatronique{
-  width:80px;
-  height:120px;
+  width:100%;
+  height:100%;
   position:absolute;
-  top:10px;
-  left:50%;
-  transform:translateX(-50%);
+  top:0;
+  left:0;
   display:none;
-  border:3px solid white;
   background:black;
+  color:white;
+  font-size:4px;
+  line-height:4px;
+  white-space:pre;
+  font-family:monospace;
+  overflow:hidden;
+  animation:glitch 0.2s infinite;
 }
 
-/* Variantes pour plusieurs animatroniques */
-.anim1 .head{width:80px; height:60px; border:3px solid white;}
-.anim1 .body{width:60px; height:60px; border:3px solid white; margin:0 auto;}
-.anim2 .head{width:70px; height:55px; border:3px solid white;}
-.anim2 .body{width:50px; height:65px; border:3px solid white; margin:0 auto;}
-.anim3 .head{width:75px; height:60px; border:3px solid white;}
-.anim3 .body{width:55px; height:60px; border:3px solid white; margin:0 auto;}
-.ear{width:20px; height:20px; position:absolute; top:-10px; border:3px solid white; background:black;}
-.ear.left{left:-10px;}
-.ear.right{right:-10px;}
-.eye{width:15px; height:15px; border-radius:50%; background:white; position:absolute; top:20px;}
-.eye.left{left:15px;} .eye.right{right:15px;}
-.pupil{width:7px; height:7px; border-radius:50%; background:black; position:absolute; top:4px; left:4px;}
+@keyframes glitch{
+  0%{ transform:translate(0,0);}
+  25%{ transform:translate(1px,-1px);}
+  50%{ transform:translate(-1px,1px);}
+  75%{ transform:translate(1px,1px);}
+  100%{ transform:translate(0,0);}
+}
+
+/* Flash réussite */
+.flash{
+  animation:flashEffect 0.2s;
+}
+
+@keyframes flashEffect{
+  0%{ background:white; color:black;}
+  100%{ background:black; color:white;}
+}
 
 #counter{ font-size:16px; margin-top:10px;}
-#letterS{ font-size:100px; margin-top:30px; display:none; animation:blink 1s infinite;}
-@keyframes blink {0%{opacity:1;}50%{opacity:0;}100%{opacity:1;}}
+
+#letterS{
+  font-size:100px;
+  margin-top:30px;
+  display:none;
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  0%{opacity:1;}
+  50%{opacity:0;}
+  100%{opacity:1;}
+}
 
 .message{
   position:absolute;
@@ -81,25 +120,78 @@ h1{ margin-top:20px; font-size:16px;}
   pointer-events:none;
   animation:fadeOut 1s forwards;
 }
-.message.success{ color:yellow; }
-.message.fail{ color:red; }
+
+.message.success{ color:yellow;}
+.message.fail{ color:red;}
+
 @keyframes fadeOut{
   0%{opacity:1;}
   100%{opacity:0; top:0;}
 }
 </style>
 </head>
+
 <body>
-<h1>Clique sur les animatroniques lorsqu'ils apparaîssent !</h1>
+
+<h1>Clique sur le signal lorsqu'il apparaît !</h1>
+
 <div id="game-container">
+
   <div id="cameras">
-    <div class="camera" data-id="0"><div class="animatronique anim1"><div class="head"><div class="ear left"></div><div class="ear right"></div><div class="eye left"><div class="pupil"></div></div><div class="eye right"><div class="pupil"></div></div></div><div class="body"></div></div></div>
-    <div class="camera" data-id="1"><div class="animatronique anim2"><div class="head"><div class="ear left"></div><div class="ear right"></div><div class="eye left"><div class="pupil"></div></div><div class="eye right"><div class="pupil"></div></div></div><div class="body"></div></div></div>
-    <div class="camera" data-id="2"><div class="animatronique anim3"><div class="head"><div class="ear left"></div><div class="ear right"></div><div class="eye left"><div class="pupil"></div></div><div class="eye right"><div class="pupil"></div></div></div><div class="body"></div></div></div>
-    <div class="camera" data-id="3"><div class="animatronique anim1"><div class="head"><div class="ear left"></div><div class="ear right"></div><div class="eye left"><div class="pupil"></div></div><div class="eye right"><div class="pupil"></div></div></div><div class="body"></div></div></div>
+
+    <!-- 4 caméras -->
+    <div class="camera" data-id="0"><div class="animatronique">
+11111111111111111111111111111
+11111111111111111111111111111
+11111111111111111111111111111
+11111111111111111111111111111
+11111111111111111111111111111
+11111111111111111111111111111
+11111111111111111111111111111
+11111000000000000000000111111
+11111000000000000000000111111
+11100000000000000000000001111
+11100000000000000000000001111
+11100000000000000000000001111
+11100000000000000000000001111
+11100111100000011110000001111
+11100111100000011110000001111
+11100111100000011110000001111
+11100111100000011110000001111
+11100111100000011110000001111
+11100111100000011110000001111
+11100000000000000000000001111
+11100000000000000000000001111
+11100000000000000000000001111
+11100000000000000000000001111
+11100000000000000000000001111
+11100000000000000000000001111
+11100000000000000000000001111
+11100000000000000000000001111
+11100000000000000000000001111
+11100000000000000000000001111
+11100000000000000000000001111
+11100000000000000000000001111
+11111000000000000000000111111
+11111000000000000000000111111
+11111110000000000000011111111
+11111110000000000000011111111
+11111111111111111111111111111
+11111111111111111111111111111
+11111111111111111111111111111
+11111111111111111111111111111
+11111111111111111111111111111
+    </div></div>
+
+    <div class="camera" data-id="1"><div class="animatronique">SAME</div></div>
+    <div class="camera" data-id="2"><div class="animatronique">SAME</div></div>
+    <div class="camera" data-id="3"><div class="animatronique">SAME</div></div>
+
   </div>
+
   <div id="counter">Succès : 0 / 10</div>
   <div id="letterS">S</div>
+
 </div>
 
 <script>
@@ -123,9 +215,11 @@ function spawnAnimatronic(){
   currentId = Math.floor(Math.random()*cameras.length);
   const anim = cameras[currentId].querySelector('.animatronique');
   anim.style.display='block';
-  setTimeout(()=>{ 
-    anim.style.display='none'; 
-    currentId=-1; 
+  anim.classList.add('flash');
+  setTimeout(()=>{ anim.classList.remove('flash'); },200);
+  setTimeout(()=>{
+    anim.style.display='none';
+    currentId=-1;
   },1200);
 }
 
@@ -137,24 +231,24 @@ function shakeSite(){
   setTimeout(()=>{ gameContainer.style.transform='translateX(0)'; },200);
 }
 
-function showMessage(text, type){
-  const msg = document.createElement('div');
+function showMessage(text,type){
+  const msg=document.createElement('div');
   msg.className='message '+type;
   msg.textContent=text;
-  msg.style.left = Math.random()*(window.innerWidth-100)+'px';
-  msg.style.top = Math.random()*(window.innerHeight-50)+'px';
+  msg.style.left=Math.random()*(window.innerWidth-100)+'px';
+  msg.style.top=Math.random()*(window.innerHeight-50)+'px';
   document.body.appendChild(msg);
-  setTimeout(()=>{ document.body.removeChild(msg); },1000);
+  setTimeout(()=>{document.body.removeChild(msg);},1000);
 }
 
 cameras.forEach(cam=>{
-  cam.addEventListener('click', ()=>{
-    const id = parseInt(cam.dataset.id);
-    if(id === currentId){
+  cam.addEventListener('click',()=>{
+    const id=parseInt(cam.dataset.id);
+    if(id===currentId){
       success++;
       counter.textContent=`Succès : ${success} / ${maxSuccess}`;
       showMessage("+1 point","success");
-      shakeSite(); // tremble seulement sur succès
+      shakeSite();
       if(success>=maxSuccess){
         letterS.style.display='block';
         hideAll();
@@ -163,11 +257,10 @@ cameras.forEach(cam=>{
         spawnAnimatronic();
       }
     } else {
-      success = Math.max(0, success-1);
+      success=Math.max(0,success-1);
       counter.textContent=`Succès : ${success} / ${maxSuccess}`;
-      const failMsg = failMessages[Math.floor(Math.random()*failMessages.length)];
-      showMessage(failMsg,"fail"); // texte rouge sur échec
-      // PAS de shake ici
+      const failMsg=failMessages[Math.floor(Math.random()*failMessages.length)];
+      showMessage(failMsg,"fail");
     }
   });
 });
@@ -179,5 +272,6 @@ setInterval(()=>{
   }
 },1500);
 </script>
+
 </body>
 </html>
