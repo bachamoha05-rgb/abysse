@@ -18,7 +18,17 @@ body{
   overflow:hidden;
 }
 
-/* Effet scan TV */
+h1{
+  margin-top:20px;
+  font-size:16px;
+}
+
+#game-container{
+  margin-top:20px;
+  position:relative;
+}
+
+/* Effet scan léger */
 body::after{
   content:"";
   position:fixed;
@@ -26,21 +36,14 @@ body::after{
   left:0;
   width:100%;
   height:100%;
-  background: repeating-linear-gradient(
+  background:repeating-linear-gradient(
     0deg,
-    rgba(255,255,255,0.05),
-    rgba(255,255,255,0.05) 1px,
+    rgba(255,255,255,0.03),
+    rgba(255,255,255,0.03) 1px,
     transparent 1px,
     transparent 3px
   );
   pointer-events:none;
-}
-
-h1{ margin-top:20px; font-size:16px;}
-
-#game-container{
-  margin-top:20px;
-  position:relative;
 }
 
 #cameras{
@@ -64,41 +67,33 @@ h1{ margin-top:20px; font-size:16px;}
 
 /* PERSONNAGE BINAIRE */
 .animatronique{
-  width:100%;
-  height:100%;
   position:absolute;
   top:0;
   left:0;
+  width:100%;
+  height:100%;
   display:none;
   background:black;
   color:white;
+  font-family:monospace;
   font-size:4px;
   line-height:4px;
   white-space:pre;
-  font-family:monospace;
-  overflow:hidden;
-  animation:glitch 0.2s infinite;
+  user-select:none;
+  animation:glitch 0.15s infinite;
 }
 
+/* Glitch léger */
 @keyframes glitch{
   0%{ transform:translate(0,0);}
-  25%{ transform:translate(1px,-1px);}
-  50%{ transform:translate(-1px,1px);}
-  75%{ transform:translate(1px,1px);}
+  50%{ transform:translate(1px,-1px);}
   100%{ transform:translate(0,0);}
 }
 
-/* Flash réussite */
-.flash{
-  animation:flashEffect 0.2s;
+#counter{
+  font-size:16px;
+  margin-top:10px;
 }
-
-@keyframes flashEffect{
-  0%{ background:white; color:black;}
-  100%{ background:black; color:white;}
-}
-
-#counter{ font-size:16px; margin-top:10px;}
 
 #letterS{
   font-size:100px;
@@ -137,10 +132,11 @@ h1{ margin-top:20px; font-size:16px;}
 
 <div id="game-container">
 
-  <div id="cameras">
+<div id="cameras">
 
-    <!-- 4 caméras -->
-    <div class="camera" data-id="0"><div class="animatronique">
+<!-- Caméra 0 -->
+<div class="camera" data-id="0">
+<div class="animatronique">
 11111111111111111111111111111
 11111111111111111111111111111
 11111111111111111111111111111
@@ -181,28 +177,36 @@ h1{ margin-top:20px; font-size:16px;}
 11111111111111111111111111111
 11111111111111111111111111111
 11111111111111111111111111111
-    </div></div>
+</div>
+</div>
 
-    <div class="camera" data-id="1"><div class="animatronique">SAME</div></div>
-    <div class="camera" data-id="2"><div class="animatronique">SAME</div></div>
-    <div class="camera" data-id="3"><div class="animatronique">SAME</div></div>
+<!-- Caméras 1 2 3 (identiques) -->
+<div class="camera" data-id="1"><div class="animatronique"></div></div>
+<div class="camera" data-id="2"><div class="animatronique"></div></div>
+<div class="camera" data-id="3"><div class="animatronique"></div></div>
 
-  </div>
+</div>
 
-  <div id="counter">Succès : 0 / 10</div>
-  <div id="letterS">S</div>
+<div id="counter">Succès : 0 / 10</div>
+<div id="letterS">S</div>
 
 </div>
 
 <script>
 const cameras = document.querySelectorAll('.camera');
-const gameContainer = document.getElementById('game-container');
-let currentId = -1;
-let success = 0;
-const maxSuccess = 10;
-const counter = document.getElementById('counter');
-const letterS = document.getElementById('letterS');
-const failMessages = ["raté","trop guez","fait un effort","bro plz","encore raté"];
+const binaryArt = cameras[0].querySelector('.animatronique').innerHTML;
+
+/* Copie le personnage dans les autres caméras */
+for(let i=1;i<cameras.length;i++){
+  cameras[i].querySelector('.animatronique').innerHTML = binaryArt;
+}
+
+let currentId=-1;
+let success=0;
+const maxSuccess=10;
+const counter=document.getElementById('counter');
+const letterS=document.getElementById('letterS');
+const failMessages=["raté","trop guez","fait un effort","bro plz","encore raté"];
 
 function hideAll(){
   cameras.forEach(c=>{
@@ -210,25 +214,15 @@ function hideAll(){
   });
 }
 
-function spawnAnimatronic(){
+function spawn(){
   hideAll();
-  currentId = Math.floor(Math.random()*cameras.length);
-  const anim = cameras[currentId].querySelector('.animatronique');
+  currentId=Math.floor(Math.random()*cameras.length);
+  const anim=cameras[currentId].querySelector('.animatronique');
   anim.style.display='block';
-  anim.classList.add('flash');
-  setTimeout(()=>{ anim.classList.remove('flash'); },200);
   setTimeout(()=>{
     anim.style.display='none';
     currentId=-1;
   },1200);
-}
-
-function shakeSite(){
-  gameContainer.style.transform='translateX(-5px)';
-  setTimeout(()=>{ gameContainer.style.transform='translateX(5px)'; },50);
-  setTimeout(()=>{ gameContainer.style.transform='translateX(-5px)'; },100);
-  setTimeout(()=>{ gameContainer.style.transform='translateX(5px)'; },150);
-  setTimeout(()=>{ gameContainer.style.transform='translateX(0)'; },200);
 }
 
 function showMessage(text,type){
@@ -248,15 +242,14 @@ cameras.forEach(cam=>{
       success++;
       counter.textContent=`Succès : ${success} / ${maxSuccess}`;
       showMessage("+1 point","success");
-      shakeSite();
       if(success>=maxSuccess){
         letterS.style.display='block';
         hideAll();
         showMessage("Bravo ! Lettre S débloquée !","success");
-      } else {
-        spawnAnimatronic();
+      } else{
+        spawn();
       }
-    } else {
+    } else{
       success=Math.max(0,success-1);
       counter.textContent=`Succès : ${success} / ${maxSuccess}`;
       const failMsg=failMessages[Math.floor(Math.random()*failMessages.length)];
@@ -265,10 +258,10 @@ cameras.forEach(cam=>{
   });
 });
 
-spawnAnimatronic();
+spawn();
 setInterval(()=>{
   if(success<maxSuccess){
-    spawnAnimatronic();
+    spawn();
   }
 },1500);
 </script>
