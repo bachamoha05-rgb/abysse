@@ -28,7 +28,7 @@ h1{
   position:relative;
 }
 
-/* Effet scan léger */
+/* Effet scan */
 body::after{
   content:"";
   position:fixed;
@@ -65,28 +65,25 @@ body::after{
   overflow:hidden;
 }
 
-/* PERSONNAGE BINAIRE */
+/* GIF animatronique */
 .animatronique{
   position:absolute;
-  top:0;
-  left:0;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
   width:100%;
   height:100%;
+  object-fit:contain;
   display:none;
-  background:black;
-  color:white;
-  font-family:monospace;
-  font-size:4px;
-  line-height:4px;
-  white-space:pre;
-  user-select:none;
+  image-rendering:pixelated;
+  filter:grayscale(100%) brightness(70%) contrast(180%);
   animation:glitch 0.15s infinite;
 }
 
 @keyframes glitch{
-  0%{ transform:translate(0,0);}
-  50%{ transform:translate(1px,-1px);}
-  100%{ transform:translate(0,0);}
+  0%{ transform:translate(-50%,-50%);}
+  50%{ transform:translate(-49%,-51%);}
+  100%{ transform:translate(-50%,-50%);}
 }
 
 #counter{
@@ -133,56 +130,22 @@ body::after{
 
 <div id="cameras">
 
-<!-- Caméra 0 -->
+<!-- Caméras -->
 <div class="camera" data-id="0">
-<div class="animatronique">
-111111111111000001111111
-111111111110000000111111
-111111111110000000111111
-111111111111001000111111
-111111111111001000111111
-111111111110000000111111
-111111111110000000111111
-111111111111000000011111
-111111111111000001001111
-111111111111111111001111
-111111111111111111000001
-111111111111111111000001
-111111111111111111011000
-111111111111111111011000
-111111111111111100010000
-111111111111111100000000
-111111111111111100000000
-111111101111110000000000
-111110001111000001000000
-000000100000000011000000
-111111111111111111000001
-111111111111111111000001
-111111111111111111100001
-111111111111111111100001
-111111111111111111100001
-111111111111111111100001
-111111111111111111100001
-111111111111111111100001
-111111111111111111100001
-111111111111111111100001
-111111111111111111110011
-111111111111111111110011
-111111111111111111110011
-111111111111111111110011
-111111111111111111110011
-111111111111111111110011
-111111111111111111110011
-111111111111111111110011
-111111111111111110000011
-111111111111111110000011
-</div>
+  <img class="animatronique" src="https://media.tenor.com/mrTqSKlOCgQAAAAM/purple-guy.gif">
 </div>
 
-<!-- Caméras 1,2,3 -->
-<div class="camera" data-id="1"><div class="animatronique"></div></div>
-<div class="camera" data-id="2"><div class="animatronique"></div></div>
-<div class="camera" data-id="3"><div class="animatronique"></div></div>
+<div class="camera" data-id="1">
+  <img class="animatronique" src="https://media.tenor.com/mrTqSKlOCgQAAAAM/purple-guy.gif">
+</div>
+
+<div class="camera" data-id="2">
+  <img class="animatronique" src="https://media.tenor.com/mrTqSKlOCgQAAAAM/purple-guy.gif">
+</div>
+
+<div class="camera" data-id="3">
+  <img class="animatronique" src="https://media.tenor.com/mrTqSKlOCgQAAAAM/purple-guy.gif">
+</div>
 
 </div>
 
@@ -193,12 +156,6 @@ body::after{
 
 <script>
 const cameras = document.querySelectorAll('.camera');
-const binaryArt = cameras[0].querySelector('.animatronique').innerHTML;
-
-/* Copier le perso dans les autres caméras */
-for(let i=1;i<cameras.length;i++){
-  cameras[i].querySelector('.animatronique').innerHTML = binaryArt;
-}
 
 let currentId=-1;
 let success=0;
