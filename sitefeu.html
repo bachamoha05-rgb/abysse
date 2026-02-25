@@ -3,40 +3,118 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Défis de l'Abysse</title>
+<title>Les Épreuves de l’Abysse</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-body {background:black;color:white;font-family:'Press Start 2P',monospace;margin:0;padding:0;text-align:center;overflow:hidden;}
+body{
+  background:black;
+  color:white;
+  font-family:'Press Start 2P', monospace;
+  margin:0;
+  text-align:center;
+}
+
 h1{margin-top:20px;font-size:16px;}
-#game-container{margin-top:20px;position:relative;}
-#counter{font-size:16px;margin-top:10px;}
-#letterFinal{font-size:120px;margin-top:30px;display:none;animation:blink 1s infinite;}
-@keyframes blink{0%{opacity:1;}50%{opacity:0;}100%{opacity:1;}}
-.message{position:absolute;font-size:16px;font-weight:bold;pointer-events:none;animation:fadeOut 1s forwards;}
-.message.success{color:yellow;}
-.message.fail{color:red;}
-@keyframes fadeOut{0%{opacity:1;}100%{opacity:0;top:0;}}
-.finalScene{display:none;flex-direction:column;justify-content:center;align-items:center;height:100vh;}
-#entityText{font-size:14px;margin-bottom:40px;min-height:40px;transition:opacity 0.5s ease;}
-.camera{width:60px;height:80px;border:2px solid white;margin:5px;position:relative;cursor:pointer;background:black;display:inline-block;}
-.animatronique{width:100%;height:100%;position:absolute;top:0;left:0;background:white;display:none;}
-.square{width:30px;height:30px;display:inline-block;margin:2px;border:2px solid white;cursor:pointer;user-select:none;}
-#coffres{width:700px;margin:20px auto;}
-.box {border:6px solid white;width:90%;max-width:600px;margin:40px auto;padding:20px;}
-#text {font-size:14px;line-height:1.8em;text-align:left;min-height:300px;}
-input {background:black;color:white;border:3px solid white;padding:14px;font-family:'Press Start 2P',monospace;font-size:16px;width:90%;margin-top:20px;box-sizing:border-box;}
-button {margin-top:20px;padding:16px 24px;font-family:'Press Start 2P',monospace;font-size:16px;background:black;color:white;border:3px solid white;cursor:pointer;}
-button:hover {background:white;color:black;}
-#error {margin-top:20px;color:red;font-size:14px;}
+
+#game-container{margin-top:20px;}
+#counter{margin-top:10px;font-size:14px;}
+
+.square{
+  width:30px;height:30px;
+  display:inline-block;
+  margin:4px;
+  border:2px solid white;
+  cursor:pointer;
+}
+
+.camera{
+  width:70px;height:90px;
+  border:2px solid white;
+  display:inline-block;
+  margin:8px;
+  position:relative;
+  cursor:pointer;
+}
+
+.anim{
+  position:absolute;
+  width:100%;height:100%;
+  background:white;
+  display:none;
+}
+
+.box{
+  border:4px solid white;
+  width:90%;
+  max-width:700px;
+  margin:30px auto;
+  padding:20px;
+}
+
+input{
+  background:black;
+  color:white;
+  border:2px solid white;
+  padding:10px;
+  font-family:'Press Start 2P';
+  width:80%;
+}
+
+button{
+  margin-top:15px;
+  padding:10px 20px;
+  background:black;
+  color:white;
+  border:2px solid white;
+  font-family:'Press Start 2P';
+  cursor:pointer;
+}
+
+button:hover{
+  background:white;
+  color:black;
+}
+
+.message{
+  position:absolute;
+  font-size:14px;
+  animation:fade 1s forwards;
+}
+
+@keyframes fade{
+  0%{opacity:1;}
+  100%{opacity:0; top:0;}
+}
+
+.finalScene{
+  display:none;
+  height:100vh;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+#letterFinal{
+  font-size:140px;
+  margin-top:40px;
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  0%{opacity:1;}
+  50%{opacity:0;}
+  100%{opacity:1;}
+}
 </style>
 </head>
+
 <body>
 
-<h1>Défis de l'Abysse</h1>
-<div id="game-container">
-  <div id="currentEpreuve">Épreuve 1</div>
-  <div id="counter">Score : 0</div>
-</div>
+<h1>Les Épreuves de l’Abysse</h1>
+<div id="counter">Score : 0</div>
+<div id="game-container"></div>
 
 <div class="finalScene" id="finalScene">
   <div id="entityText"></div>
@@ -45,182 +123,220 @@ button:hover {background:white;color:black;}
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <script>
+/* ---------------- CONFIG ---------------- */
+
 const firebaseConfig = {
   apiKey: "AIzaSyCLUNQhx8h0dHmiI3rqJ6QPuDju0Aa4zAo",
   authDomain: "trailer-90acb.firebaseapp.com",
   databaseURL: "https://trailer-90acb-default-rtdb.firebaseio.com",
   projectId: "trailer-90acb",
-  storageBucket: "trailer-90acb.firebasestorage.app",
-  messagingSenderId: "216077694665",
-  appId: "1:216077694665:web:e6090a278b656f7d2f7f18"
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const finalLetter = "I"; // à changer pour chaque site : I,S,M,A,C
-let currentEpreuveIndex=0, score=0;
-const totalEpreuves=5;
-const epreuves=[];
-const failMessages=["raté","trop guez","fait un effort","bro plz","encore raté"];
-function showMessage(text,type){
-  const msg=document.createElement('div');
-  msg.className='message '+type;
-  msg.textContent=text;
-  msg.style.left=Math.random()*(window.innerWidth-100)+'px';
-  msg.style.top=Math.random()*(window.innerHeight-50)+'px';
-  document.body.appendChild(msg);
-  setTimeout(()=>{document.body.removeChild(msg);},1000);
+const finalLetter = "I"; // CHANGE I S M A C
+
+const entityMessages = {
+  "I":"Tu as marché dans l’ombre sans réclamer la lumière. L’Abysse t’a reconnu.",
+  "S":"Tu doutes mais tu avances. L’Abysse t’a éprouvé.",
+  "M":"Tes silences sont plus lourds que les cris. L’Abysse t’a entendu.",
+  "A":"Tu cherches au-delà du visible. L’Abysse t’a observé.",
+  "C":"Tu refuses les limites imposées. L’Abysse t’a choisi."
+};
+
+const failMessages=["raté","encore faux","trop faible","recommence","concentre toi"];
+
+let score=0;
+let current=0;
+
+/* --------------- UTIL --------------- */
+
+function updateScore(){
+  document.getElementById("counter").textContent="Score : "+score;
 }
-function updateScore(){document.getElementById('counter').textContent="Score : "+score;}
 
-// ---------------- ÉPREUVES ----------------
+function showFail(){
+  const m=document.createElement("div");
+  m.className="message";
+  m.style.left=Math.random()*window.innerWidth+"px";
+  m.style.top=Math.random()*window.innerHeight+"px";
+  m.textContent=failMessages[Math.floor(Math.random()*failMessages.length)];
+  document.body.appendChild(m);
+  setTimeout(()=>m.remove(),1000);
+}
 
-// --- Épreuve 1 : Texte narratif ---
-function epreuve1(callback){
-  const container=document.getElementById('game-container');
-  container.innerHTML=`<h2>Épreuve 1 : Dernière enregistrement</h2>
-  <div class="box"><div id="text"></div><h3>À qui s'adresse le message ?</h3>
-  <input type="text" id="answer" placeholder="Gardien de nuit"><br>
-  <button id="submitBtn">VALIDER</button>
-  <div id="error"></div>
-  <div id="result">${finalLetter}</div></div>`;
+/* --------------- ÉPREUVE 1 NARRATIVE --------------- */
 
-  const fullText = `Bonjour bonjour? Euh, je voulais enregistrer un message pour toi pour t'aider à t'installer lors de ta première nuit. Euh, j'ai effectivement travaillé dans ce bureau avant toi. En fait, je termine ma dernière semaine maintenant. Donc, je sais que cela peut être un peu écrasant, mais je suis ici pour vous dire qu'il n'y a pas de quoi s'inquiéter. Euh, tout ira bien. Alors concentrons-nous simplement sur votre première semaine. D'accord? Euh, voyons voir, il y a d'abord un message d'introduction de la société que je suis censé lire. Euh, c'est plutôt une chose légale, vous savez. Euh, "Bienvenue chez Freddy Fazbear's Pizza. Un endroit magique pour les enfants et les adultes, où la fantaisie et le plaisir prennent vie. Fazbear Entertainment n'est pas responsable des dommages matériels ou corporels. Après avoir découvert que des dommages ou un décès se sont produits, un Le rapport de personne disparue sera déposé dans les 90 jours, ou dès que la propriété et les locaux auront été soigneusement nettoyés et blanchis et que les tapis auront été remplacés.
-Bla bla bla, ça peut paraître mauvais, je sais, mais il n'y a vraiment pas de quoi s'inquiéter. Euh, les personnages animatroniques ici deviennent un peu bizarres la nuit, mais est-ce que je leur en veux ? Non. Si j'étais obligé de chanter ces mêmes chansons stupides pendant vingt ans et que je ne prenais jamais de bain ? Je serais probablement aussi un peu irritable la nuit. Alors n’oubliez pas que ces personnages occupent une place particulière dans le cœur des enfants et qu’il faut leur montrer un peu de respect, non ? D'accord.
-Alors, sachez que les personnages ont tendance à errer un peu. Euh, ils sont laissés dans une sorte de mode d'itinérance gratuite la nuit. Euh... Quelque chose à propos de leurs servos qui se bloquent s'ils sont éteints trop longtemps. Euh, avant, ils étaient également autorisés à se promener pendant la journée. Mais il y a eu The Bite of '87. Ouais. C'est incroyable que le corps humain puisse vivre sans lobe frontal, tu sais ?
-Euh, maintenant concernant votre sécurité, le seul risque réel pour vous en tant que veilleur de nuit ici, le cas échéant, est le fait que ces personnages, euh, s'ils vous voient après les heures normales, ne vous reconnaîtront probablement pas en tant que personne. Ils vous verront très probablement comme un endosquelette en métal sans son costume. Maintenant que c'est contraire aux règles ici chez Freddy Fazbear's Pizza, ils vont probablement essayer de... vous mettre de force dans un costume de Freddy Fazbear. Hum, ce ne serait pas si grave si les combinaisons elles-mêmes n'étaient pas remplies de barres transversales, de fils et de dispositifs animatroniques, en particulier autour de la zone du visage. Vous pouvez donc imaginer à quel point le fait d'enfoncer votre tête avec force à l'intérieur de l'un d'entre eux pourrait provoquer un peu d'inconfort... et la mort. Euh, les seules parties de vous qui reverraient probablement la lumière du jour seraient vos globes oculaires et vos dents lorsqu'elles ressortiraient devant le masque, hein.
-O-Ouais, ils ne vous disent pas ces choses lorsque vous vous inscrivez. Mais bon, le premier jour devrait être un jeu d’enfant. Je discuterai avec toi demain. Euh, vérifiez ces caméras et n'oubliez pas de fermer les portes seulement si cela est absolument nécessaire. Je dois économiser l'énergie. D'accord bonne nuit.`; // Texte narratif complet
-  const textElement=document.getElementById("text");
-  let index=0;
-  function typeWriter(){if(index<fullText.length){textElement.innerHTML+=fullText.charAt(index);index++;setTimeout(typeWriter,15);}}
-  typeWriter();
+function epreuveNarrative(next){
+  const container=document.getElementById("game-container");
+  container.innerHTML=`
+  <div class="box">
+  <div id="text"></div>
+  <h3>À qui s’adresse le message ?</h3>
+  <input id="rep"><br>
+  <button onclick="checkNarrative()">VALIDER</button>
+  <div id="err"></div>
+  </div>`;
 
-  document.getElementById("submitBtn").onclick=checkAnswer;
-  function checkAnswer(){
-    const answer=document.getElementById("answer").value.trim().toLowerCase();
-    const result=document.getElementById("result");
-    const error=document.getElementById("error");
-    if(answer==="à un gardien de nuit"||answer==="gardien de nuit"||answer==="un gardien de nuit"){
-      result.style.display="block";error.textContent="";
+  const text=`Bonjour... Vous prenez votre premier poste de nuit.
+Les animatroniques errent librement.
+Ils ne vous voient pas comme humain.
+Ils vous verront comme un endosquelette.
+À qui ce message est-il destiné ?`;
+
+  let i=0;
+  function type(){
+    if(i<text.length){
+      document.getElementById("text").innerHTML+=text[i];
+      i++;
+      setTimeout(type,20);
+    }
+  }
+  type();
+
+  window.checkNarrative=function(){
+    const val=document.getElementById("rep").value.toLowerCase().trim();
+    if(val.includes("gardien")){
+      score++; updateScore();
       db.ref("lettres/"+finalLetter).set(true);
-      score++;updateScore();showMessage("+1 point","success");
-      callback();
-    } else {result.style.display="none";error.textContent="... Mauvaise réponse.";}
+      next();
+    }else{
+      score=0; updateScore(); showFail();
+    }
   }
 }
 
-// --- Épreuve 2 : Mini-jeu FNAF ---
-function epreuve2(callback){
-  const container=document.getElementById('game-container');
-  container.innerHTML="<h2>Épreuve 2 : Animatroniques</h2>";
-  const cameras=[];
-  for(let i=0;i<4;i++){const c=document.createElement('div');c.className='camera';container.appendChild(c);const anim=document.createElement('div');anim.className='animatronique';c.appendChild(anim);cameras.push(c);}
-  let current=-1;
-  function spawn(){cameras.forEach(c=>c.firstChild.style.display='none');current=Math.floor(Math.random()*cameras.length);cameras[current].firstChild.style.display='block';}
-  cameras.forEach((c,i)=>c.onclick=()=>{
-    if(i===current){score++;updateScore();showMessage("+1 point","success");spawn();}
-    else{score=Math.max(0,score-1);updateScore();showMessage(failMessages[Math.floor(Math.random()*failMessages.length)],"fail");}
+/* --------------- ÉPREUVE 2 FNAF --------------- */
+
+function epreuveFnaf(next){
+  const c=document.getElementById("game-container");
+  c.innerHTML="<h2>Animatroniques</h2>";
+  let cams=[];
+  for(let i=0;i<4;i++){
+    const cam=document.createElement("div");
+    cam.className="camera";
+    const anim=document.createElement("div");
+    anim.className="anim";
+    cam.appendChild(anim);
+    c.appendChild(cam);
+    cams.push(cam);
+  }
+  let active;
+  function spawn(){
+    cams.forEach(c=>c.firstChild.style.display="none");
+    active=Math.floor(Math.random()*4);
+    cams[active].firstChild.style.display="block";
+  }
+  cams.forEach((cam,i)=>{
+    cam.onclick=function(){
+      if(i===active){
+        score++; updateScore();
+        next();
+      }else{
+        score=0; updateScore(); showFail();
+      }
+    }
   });
   spawn();
 }
 
-// --- Épreuve 3 : Mémoire ---
-function epreuve3(callback){
-  const container=document.getElementById('game-container');
-  container.innerHTML="<h2>Épreuve 3 : Mémoire</h2><div id='memory'></div>";
-  const memory=document.getElementById('memory');
-  const sequence=[],userSequence=[];
-  for(let i=0;i<5;i++) sequence.push(Math.floor(Math.random()*4));
-  for(let i=0;i<sequence.length;i++){const s=document.createElement('div');s.className='square';s.style.background='white';memory.appendChild(s);}
-  let idx=0;
-  function showSeq(){
-    const squares=document.querySelectorAll('#memory .square');
-    if(idx<sequence.length){
-      squares[sequence[idx]].style.background='yellow';
-      setTimeout(()=>{squares[sequence[idx]].style.background='white';idx++;showSeq();},500);
-    } else userClick();
-  }
-  function userClick(){
-    const squares=document.querySelectorAll('#memory .square');
-    squares.forEach((sq,i)=>sq.onclick=()=>{
-      userSequence.push(i);
-      sq.style.background='green';
-      if(userSequence[userSequence.length-1]!==sequence[userSequence.length-1]){
-        showMessage(failMessages[Math.floor(Math.random()*failMessages.length)],"fail");
-        score=0;updateScore();
-        userSequence.length=0;idx=0;showSeq();
-      } else if(userSequence.length===sequence.length){
-        score++;updateScore();showMessage("+1 point","success");
-        callback();
+/* --------------- ÉPREUVE 3 MÉMOIRE --------------- */
+
+function epreuveMemoire(next){
+  const c=document.getElementById("game-container");
+  c.innerHTML="<h2>Mémoire</h2>";
+  const seq=[0,1,2,3].sort(()=>0.5-Math.random());
+  let user=[];
+  for(let i=0;i<4;i++){
+    const s=document.createElement("div");
+    s.className="square";
+    c.appendChild(s);
+    s.onclick=function(){
+      user.push(i);
+      if(user[user.length-1]!==seq[user.length-1]){
+        score=0; updateScore(); showFail(); user=[];
       }
-    });
-  }
-  showSeq();
-}
-
-// --- Épreuve 4 : Coffres ---
-function epreuve4(callback){
-  const container=document.getElementById('game-container');
-  container.innerHTML="<h2>Épreuve 4 : Trouve le coffre</h2><div id='coffres'></div>";
-  const coffreDiv=document.getElementById('coffres');
-  const coffreCorrect=Math.floor(Math.random()*30);let attempts=0;
-  for(let i=0;i<30;i++){const c=document.createElement('div');c.className='square';coffreDiv.appendChild(c);
-    c.onclick=function(){
-      if(i===coffreCorrect){this.style.background='green';score++;updateScore();showMessage("+1 point","success");callback();}
-      else{this.style.background='red';attempts++;score=Math.max(0,score-1);updateScore();showMessage(failMessages[Math.floor(Math.random()*failMessages.length)],"fail");if(attempts>=10){coffreDiv.innerHTML='';attempts=0;showMessage("Réinitialisation...","fail");epreuve4(callback);}}
+      if(user.length===seq.length){
+        score++; updateScore(); next();
+      }
     }
   }
 }
 
-// --- Épreuve 5 : Calculs mentaux ---
-function epreuve5(callback){
-  const container=document.getElementById('game-container');
-  container.innerHTML="<h2>Épreuve 5 : Calculs mentaux</h2><div id='calc'></div>";
-  const calcDiv=document.getElementById('calc'); let num=1, answer=0;
-  const calculs=[];
-  for(let i=0;i<14;i++){
-    let a=Math.floor(Math.random()*20)+10,b=Math.floor(Math.random()*10)+1,op=['+','-','*','/'][Math.floor(Math.random()*4)];
-    calculs.push({a,b,op});
-  }
-  calculs.push({a:0,b:0,op:'final'}); // Question finale
-  let idx=0;
-  function showCalc(){
-    if(idx>=calculs.length) return callback();
-    const c=calculs[idx]; calcDiv.innerHTML="";
-    if(c.op==='final'){calcDiv.innerHTML=`On naît avec rien + on repart avec ... = ?<br><input id="calcInput" type="number"><button id="calcBtn">VALIDER</button>`;}
-    else{calcDiv.innerHTML=`${c.a} ${c.op} ${c.b} = ?<br><input id="calcInput" type="number"><button id="calcBtn">VALIDER</button>`;}
-    document.getElementById('calcBtn').onclick=()=>{
-      const val=parseFloat(document.getElementById('calcInput').value);
-      let correct;
-      if(c.op==='+') correct=c.a+c.b;
-      else if(c.op==='-') correct=c.a-c.b;
-      else if(c.op==='*') correct=c.a*c.b;
-      else if(c.op==='/') correct=parseFloat((c.a/c.b).toFixed(2));
-      else if(c.op==='final') correct=0;
-      if(val===correct){score++;updateScore();showMessage("+1 point","success");idx++;showCalc();}
-      else{score=0;updateScore();showMessage(failMessages[Math.floor(Math.random()*failMessages.length)],"fail");idx=0;showCalc();}
+/* --------------- ÉPREUVE 4 COFFRES --------------- */
+
+function epreuveCoffres(next){
+  const c=document.getElementById("game-container");
+  c.innerHTML="<h2>Coffres</h2>";
+  const good=Math.floor(Math.random()*20);
+  for(let i=0;i<20;i++){
+    const s=document.createElement("div");
+    s.className="square";
+    c.appendChild(s);
+    s.onclick=function(){
+      if(i===good){
+        score++; updateScore(); next();
+      }else{
+        score=0; updateScore(); showFail();
+      }
     }
   }
-  showCalc();
 }
 
-// ------------------------- PROGRESSION -------------------------
-epreuves.push(epreuve1,epreuve2,epreuve3,epreuve4,epreuve5);
-function startNextEpreuve(){if(currentEpreuveIndex<totalEpreuves){epreuves[currentEpreuveIndex](()=>{currentEpreuveIndex++;startNextEpreuve();});}else startFinalScene();}
-startNextEpreuve();
+/* --------------- ÉPREUVE 5 CALCULS --------------- */
 
-// ------------------------- SCÈNE FINALE -------------------------
-function startFinalScene(){
-  document.getElementById('game-container').style.display="none";
-  const scene=document.getElementById('finalScene');scene.style.display="flex";
-  const text=document.getElementById('entityText');
-  const letterDisplay=document.getElementById('letterFinal');
-  const messages={"I":"Tu avances sans voir… mais tu sens.","S":"Tu observes là où d'autres parlent.","M":"Tu portes ce que les autres oublient.","A":"Tu tends vers ce qui dépasse.","C":"Tu brises l'ordre établi."};
-  text.textContent=messages[finalLetter];
-  setTimeout(()=>{letterDisplay.textContent=finalLetter;letterDisplay.style.opacity=1;letterDisplay.style.transform="scale(1.2)";},3000);
+function epreuveCalcul(next){
+  const c=document.getElementById("game-container");
+  let a=Math.floor(Math.random()*20)+10;
+  let b=Math.floor(Math.random()*10)+1;
+  c.innerHTML=`<h2>Calcul</h2>
+  ${a} + ${b} = ?
+  <br><input id="calc"><br>
+  <button onclick="checkCalc()">VALIDER</button>`;
+
+  window.checkCalc=function(){
+    if(parseInt(document.getElementById("calc").value)==a+b){
+      score++; updateScore(); next();
+    }else{
+      score=0; updateScore(); showFail();
+    }
+  }
 }
+
+/* --------------- FINAL --------------- */
+
+function finalScene(){
+  document.getElementById("game-container").style.display="none";
+  const scene=document.getElementById("finalScene");
+  scene.style.display="flex";
+  document.getElementById("entityText").textContent=entityMessages[finalLetter];
+  document.getElementById("letterFinal").textContent=finalLetter;
+}
+
+/* --------------- FLOW --------------- */
+
+const epreuves=[
+  epreuveNarrative,
+  epreuveFnaf,
+  epreuveMemoire,
+  epreuveCoffres,
+  epreuveCalcul
+];
+
+function next(){
+  current++;
+  if(current<epreuves.length){
+    epreuves[current](next);
+  }else{
+    finalScene();
+  }
+}
+
+epreuves[0](next);
+
 </script>
 </body>
 </html>
-
